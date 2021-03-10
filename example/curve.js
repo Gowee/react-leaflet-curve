@@ -43,9 +43,11 @@ export default class CurveExample extends React.Component {
   constructor() {
     super();
     this.state = {
-      latngs: []
+      latngs: [],
+      count: 0
     }
     this.handleClick = this.handleClick.bind(this);
+    this.triggerRerender = this.triggerRerender.bind(this);
   }
 
   handleClick(props) {
@@ -54,10 +56,16 @@ export default class CurveExample extends React.Component {
     this.setState({ latngs: route });
   }
 
+  triggerRerender(){
+    this.setState({ count: this.state.count + 1 })
+  }
+
   render() {
     const icon = divIcon({ className: 'divicon' });
     let curve = this.state.latngs.length > 0 ? <Curve positions={this.state.latngs} option={{ animate: 3000 }} /> : null
     return ( 
+      <>
+      <button onClick={this.triggerRerender}>Trigger rerender</button>
       <Map center={[45.616037,15.951813]} zoom={4} zoomControl={true}>
         <TileLayer
           url='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
@@ -65,13 +73,14 @@ export default class CurveExample extends React.Component {
         />
         <Curve positions={pathTwo} option={{color:'red',fill:true}}/>
         <Curve positions={pathThree} option={{fill:true, color:'orange'}} />
-        <Curve positions={pathFour} option={{dashArray: 5, animate: {duration: 3000, iterations: Infinity}}}/>
+        <Curve positions={pathFour.map((v) => typeof v === 'string' ? v : [v[0] + this.state.count % 2, v[1]] )} option={{dashArray: 5, animate: {duration: 12000, iterations: Infinity}}}/>
         {curve}
         <FeatureGroup onClick={this.handleClick}>
           <Marker position={[50.14874640066278, 14.106445312500002]} icon={icon} /></FeatureGroup>
         <Marker position={[49.866316729538674, 25.0927734375]} icon={icon}>
         </Marker>
       </Map>
+      </>
     )
   }
 }
